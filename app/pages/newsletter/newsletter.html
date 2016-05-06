@@ -1,0 +1,104 @@
+
+<ion-navbar *navbar>
+  <button menuToggle>
+    <ion-icon name="menu"></ion-icon>
+  </button>
+  <ion-title>Denni Inspirace</ion-title>
+</ion-navbar>
+
+<ion-content padding class="newsletter" overflow-scroll="false">
+      <ion-scroll scrollX="true" style="height: 50px">
+      <div style="white-space: nowrap; font-size: 10">
+        <button *ngFor="#i of [6,5,4,3,2,1,0]">
+          {{ weekDays[(today + i) % 7] }} {{ calculateDateFromToday(i-7, true) }}
+        </button>
+      </div>
+    </ion-scroll>
+
+  <ion-item>
+    <h1 class="title">{{ data.perexTitle }}</h1>
+    <p>{{ data.perex }}</p>
+  </ion-item>
+
+  <ion-card *ngFor="#campaign of data.newCampaigns">
+    <img [src]="campaign.campaign.images.homepage-main || sampleImg">
+    <ion-item>
+      <h1>{{ campaign.campaign.name }}</h1>
+      <p>{{ campaign.campaign.perex }}</p>
+      <p>{{ campaign.campaign.type }}</p>
+    </ion-item>
+
+    <ion-row *ngIf="campaign.campaign.type == 'big-product-single'">
+      <ion-col width-33><img [src]="campaign.products[0].images[0].productDetail-thumbnail  || sampleImg"></ion-col>
+      <ion-col><p>{{ campaign.products[0].name }}</p></ion-col>
+      <ion-col width-10><ion-icon name="arrow-forward"></ion-icon></ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="campaign.campaign.type == 'big-product-multiple'">
+      <ion-col *ngFor="#product of campaign.products">
+        <img [src]="product.images[0].productDetail-thumbnail  || sampleImg">
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="campaign.campaign.type == 'big-author'">
+      <ion-col width-20>
+        <ion-avatar item-left><img [src]="campaign.campaign.authorAvatar  || sampleImg"></ion-avatar>
+      </ion-col>
+      <ion-col>
+        <h2>{{ campaign.campaign.authorTitle }}</h2>
+        <p>{{ campaign.campaign.authorDescription }}</p>
+      </ion-col>
+    </ion-row>
+  </ion-card>
+
+  <ion-card>
+    <h1>Skladovky</h1>
+    <ion-row>
+      <div *ngFor="#stockItem of data.onStockProducts.products">
+        <img [src]="stockItem.images[0].productDetail-thumbnail || sampleImg"><br>
+        <p>{{stockItem.name}}, {{ stockItem.price }} {{ stockItem.currency }}</p>
+      </div>
+    </ion-row>
+    <ion-row>Na techto {{ data.onStockProducts.pcsLeft}} kousku cekat nemusite!</ion-row>
+  </ion-card>
+
+  <ion-card>
+    <img [src]="data.magazineArticle.articleImg || sampleImg">
+    <h1>Magazin</h1>
+    <ion-item>{{ data.magazineArticle.title }}</ion-item>
+  </ion-card>
+
+  <ion-card>
+    <h1>Srdcovka</h1>
+    <ion-row *ngFor="#lovedItem of data.lovedProducts.products">
+      <ion-col width-33><img [src]="lovedItem.images[0].productDetail-thumbnail || sampleImg"></ion-col>
+      <ion-col>
+        <ion-row>
+          <ion-col><p>{{ lovedItem.name }}</p></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>{{ lovedItem.price }} {{ lovedItem.currency }}</ion-col>
+          <ion-col width-10><ion-icon name="arrow-forward"></ion-icon></ion-col>
+        </ion-row>
+      </ion-col>
+    </ion-row>
+  </ion-card>
+
+  <ion-card *ngFor="#product of data.endingCampaigns.products">
+    <img [src]="product.images[0].homepage-main || sampleImg">
+    <ion-item style="background: rgb(228, 14, 65); color: white">
+      <h1>{{ product.name }}</h1>
+      <p>{{ product.description }}</p>
+      <ion-icon name="time" isActive="false">
+         Konci za {{ calculateTimeRemaining(product.campaignEndAt).days }} dni
+        {{ calculateTimeRemaining(product.campaignEndAt).hours }} hodin.
+      </ion-icon><div>
+      </div>
+    </ion-item>
+  </ion-card>
+
+  <!-- <p>
+    <button primary menuToggle>Toggle Menu</button>
+  </p> -->
+
+</ion-content>
