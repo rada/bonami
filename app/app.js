@@ -1,7 +1,7 @@
 import {App, IonicApp, Platform} from 'ionic-angular';
 import {StatusBar} from 'ionic-native';
 import {NewsletterPage} from './pages/newsletter/newsletter';
-import {ListPage} from './pages/list/list';
+//import {ListPage} from './pages/list/list';
 import {MagazinePage} from './pages/magazine/magazine';
 import {NewsletterService} from './providers/newsletter-service/newsletter-service.js'
 import {BonamiService} from './providers/bonami-service/bonami-service.js';
@@ -27,7 +27,7 @@ class MyApp {
     // used for an example of ngFor and navigation
     this.pages = [
       { title: 'Newsletter', component: NewsletterPage },
-      { title: 'List', component: ListPage },
+    //  { title: 'List', component: ListPage },
       { title: 'Magazine', component: MagazinePage }
     ];
 
