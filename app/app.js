@@ -11,7 +11,9 @@ import {AppConfig} from './config/config.js'
 
 @App({
   templateUrl: 'build/app.html',
-  config: {}, // http://ionicframework.com/docs/v2/api/config/Config/
+  config: {
+    pageTransition: 'ios'
+  }, // http://ionicframework.com/docs/v2/api/config/Config/
   providers: [NewsletterService, BonamiService, LocalStorageService, AppConfig]
 })
 class MyApp {

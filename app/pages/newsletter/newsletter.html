@@ -7,16 +7,18 @@
 </ion-navbar>
 
 <ion-content padding class="newsletter" overflow-scroll="false">
-      <ion-scroll scrollX="true" style="height: 50px">
+      <ion-scroll scrollX="true" style="height: 73px">
       <div style="white-space: nowrap; font-size: 10">
-        <button *ngFor="#i of [6,5,4,3,2,1,0]">
-          {{ weekDays[(today + i) % 7] }} {{ calculateDateFromToday(i-7, true) }}
+        <button *ngFor="#i of [6,5,4,3,2,1,0]" (click)="openPage(i)">
+          {{ appConfig.weekDays[(today + i) % 7] }} {{ calculateDateFromToday(i-6, true) }}
         </button>
       </div>
     </ion-scroll>
 
   <ion-item>
-    <h1 class="title">{{ data.perexTitle }}</h1>
+    <h1 class="title">{{ data._id }} {{ data.perexTitle }}</h1>
+    <h2> {{ data.date }}</h2>
+    <h3><a nav-transition="android" (click)="magazinePage()">Transition test</a></h3>
     <p>{{ data.perex }}</p>
   </ion-item>
 

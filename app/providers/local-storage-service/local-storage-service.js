@@ -1,8 +1,8 @@
 import {Injectable} from 'angular2/core';
-import {Http} from 'angular2/http';
-import 'rxjs/add/operator/map';
+import {AppConfig} from '../../config/config.js';
 
 let PouchDB = require('pouchdb');
+window["PouchDB"] = PouchDB;
 
 /*
   Generated class for the LocalStorageService provider.
@@ -12,50 +12,61 @@ let PouchDB = require('pouchdb');
 */
 @Injectable()
 export class LocalStorageService {
-  private newslettersDb;
-  private magazinesDb;
-
   static get parameters(){
-    return [[Http]]
+    return [[AppConfig]]
   }
 
-  initDB {
-    this.newslettersDb = new PouchDB('bonami-newsletters', { adapter: 'websql' });
-    this.magazinesDb = new PouchDB('bonami-magazines', { adapter: 'websql' });
+  initDb (dbName){
+    let db = Object.keys(this.appConfig.dbs).find((localDb) => { return this.appConfig.dbs[localDb] == dbName });
+    if (db){
+      return this.localDb = new PouchDB(dbName, { adapter: 'websql' });
+    }else{
+      console.error("This DB is not configured in the application: ", dbName);
+    }
   }
 
-  constructor(http) {
-    this.http = http;
-    this.data = null;
+  constructor(appConfig) {
+    this.appConfig = appConfig.appConfig;
+    this.localDb = {};
   }
 
-  saveRecord(db, record, id){
-    return db.put(record, id);
-  };
-  getRecord(db, id){
-    return db.get(id);
-  };
-  deleteRecord(db, record){
-    return db.remove(record)
+  saveRecord(dbName, record){
+    this.localDb = this.initDb(dbName);
+    if (this.localDb){
+      return this.localDb.put(record)
+    }else{
+      console.error("Unable to save record. Check the DB name.");
+    }
   };
 
-  getAllRecords(db){
-    return db.allDocs({ include_docs: true});
+  getRecord(dbName, id){
+    this.initDb(dbName);
+    if (this.localDb){
+      return this.localDb.get(id)
+    }else{
+      console.error("Unable to fetch record. Check the DB name.");
+    }
   };
+
+  deleteRecord(dbName, record){
+    this.initDb(dbName);
+    if (this.localDb){
+      return this.localDb.remove(record)
+    }else{
+      console.error("Unable to delete record. Check the DB name.");
+    }
+  };
+
+  getAllRecords(dbName){
+    this.initDb(dbName);
+    if (this.localDb){
+      return this.localDb.allDocs({ include_docs: true});
+    }else{
+      console.error("Unable to fetch all records. Check the DB name");
+    }
+  };
+
   deleteAllRecords(db){
     return db.destroy();
   };
-
-  // //returns and array of all newsletter objects from local storage
-  // getAllNewsletters(){  }
-  //
-  // getNewsletter(id){  }
-  //
-  // saveNewsletter(newsletter){ }
-  //
-  // deleteNewsletter(id){ }
-  //
-  // getAllMagazines(){ }
-  //
-  // getMagazine(id){ }// not sure what the ID will be yet
 }
