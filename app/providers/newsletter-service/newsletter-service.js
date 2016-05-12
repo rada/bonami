@@ -103,6 +103,7 @@ export class NewsletterService {
       newsletter._id = String(newsletter.id);
       return this.ls.saveRecord(this.appConfig.dbs['newsletterDbName'], newsletter).then((resp) => {
         console.log("Newsletter saved.", resp);
+        newsletter._rev = resp.rev;
         this.data.push(newsletter);
       }).catch((err) => {
         console.error("Unable to save newsletter: ", newsletter.id, err);
