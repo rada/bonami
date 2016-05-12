@@ -14,19 +14,18 @@ export class NewsletterService {
     this.ls = localStorageService;
     this.appConfig = appConfig.appConfig;
     this.data = []//this.getNewsletters();
-    this.nl = {};
   }
 
   // Gets data from Local Storage (PouchDB) and saves it to this.Data
   // if timelimit for checking new newsletter at Bonami is reached
   // it will check for new newsletters, fetches and saves them to
   // Local Storage and adds them to this.data (this.getNewNewsletters)
-  getNewsletters(){
+  getNewsletters(checkNew){
     if (this.data.length == 0){
       return this.getAllLocalNewsletters().then((data) => {
         let localNewslettersIds = this.data.map((nl) => { return nl.id });
 
-        if(this.checkNewNewsletters()){
+        if(checkNew || this.checkNewNewsletters()){
           this.getNewNewsletters(localNewslettersIds, true).then((resp) => {
             console.log("observable", resp);
           });
@@ -90,7 +89,6 @@ export class NewsletterService {
     let newsletter =
     this.ls.getRecord(this.appConfig.dbs['newsletterDbName'], id).then((data) => {
       console.log("Record fetched (data): ", data);
-      this.nl = data;
       return data;
     }).catch((err) => {
       console.error("Unable to fetch record from local DB: ", err);
@@ -105,9 +103,9 @@ export class NewsletterService {
       newsletter._id = String(newsletter.id);
       return this.ls.saveRecord(this.appConfig.dbs['newsletterDbName'], newsletter).then((resp) => {
         console.log("Newsletter saved.", resp);
-        this.data.push(resp);
+        this.data.push(newsletter);
       }).catch((err) => {
-        console.error("Unable to save newsletter: ", err);
+        console.error("Unable to save newsletter: ", newsletter.id, err);
       });
     }
   }
@@ -135,6 +133,16 @@ export class NewsletterService {
       console.error("Error fetching newsletters from local DB: ", err);
     })
   }
+
+  // removeExpiredNewsletters(newsletters){
+  //   if(newsletters & newsletters instanceof Array){
+  //     let expiredNewsletters = [];
+  //     let validNewsletters = []
+  //     newsletters.forEach((newsletter) => {
+  //       let expireDate = new Date(newsletter. endAt)
+  //     })
+  //   }
+  // }
 
   // Not yet implemented
   updateNewsletters(){
