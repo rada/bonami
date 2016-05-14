@@ -31,6 +31,15 @@ export class BonamiService {
     return this.http.get(url);
   }
 
+  getMagazineArticleList(){
+    return this.http.get(this.config.getApiUrl('magazines'));
+  }
+
+  getMagazineArticle(id){
+    let url = this.config.getLiveApiUrl('magazineArticleById').replace(":id", id);
+    return this.http.get(url);
+  }
+
   load() {
     if (this.data) {
       // already loaded data

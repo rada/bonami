@@ -1,9 +1,9 @@
 import {App, IonicApp, Platform} from 'ionic-angular';
 import {StatusBar} from 'ionic-native';
 import {NewsletterPage} from './pages/newsletter/newsletter';
-//import {ListPage} from './pages/list/list';
 import {MagazinePage} from './pages/magazine/magazine';
 import {NewsletterService} from './providers/newsletter-service/newsletter-service.js'
+import {MagazineService} from './providers/magazine-service/magazine-service.js'
 import {BonamiService} from './providers/bonami-service/bonami-service.js';
 import {LocalStorageService} from './providers/local-storage-service/local-storage-service.js'
 import {AppConfig} from './config/config.js'
@@ -14,7 +14,7 @@ import {AppConfig} from './config/config.js'
   config: {
     pageTransition: 'ios'
   }, // http://ionicframework.com/docs/v2/api/config/Config/
-  providers: [NewsletterService, BonamiService, LocalStorageService, AppConfig]
+  providers: [NewsletterService, MagazineService, BonamiService, LocalStorageService, AppConfig]
 })
 class MyApp {
   static get parameters() {
@@ -29,7 +29,6 @@ class MyApp {
     // used for an example of ngFor and navigation
     this.pages = [
       { title: 'Newsletter', component: NewsletterPage },
-    //  { title: 'List', component: ListPage },
       { title: 'Magazine', component: MagazinePage }
     ];
 

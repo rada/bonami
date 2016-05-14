@@ -12,12 +12,13 @@ export class AppConfig{
       // date config
       weekDays: ['pondeli','utery','streda', 'ctvrtek', 'patek', 'sobota', 'nedele'],
       // API config
-      apiKey: "4aa883f95999ec813b8bfaf319f3972b",
-      apiUrl: "private-anon-e17b6324b-bonami1.apiary-mock.com",
+      apiUrlTest: "private-anon-e17b6324b-bonami1.apiary-mock.com",
+      apiUrl: "www.bonami.cz/mcc16",
       apiEndpoints: {
-        newsletters: "/newsletter",
-        newsletterById: "/newsletter/:id",
-        magazine: ""
+        newsletters: "/newsletters",
+        newsletterById: "/newsletters/:id",
+        magazines: "/magazine-articles",
+        magazineArticleById: "/magazine-articles/:id"
       },
       // DB Congif
       dbs: {
@@ -31,7 +32,7 @@ export class AppConfig{
   }
 
   getApiUrl(endpoint){
-    var url = "http://" + this.appConfig.apiUrl + this.appConfig.apiEndpoints[endpoint];
+    let url = "https://" + this.appConfig.apiUrl + this.appConfig.apiEndpoints[endpoint];
     return url;
   }
 }

@@ -7,27 +7,28 @@
 </ion-navbar>
 
 <ion-content padding class="newsletter" overflow-scroll="false">
-      <ion-scroll scrollX="true" style="height: 73px">
+    <ion-scroll scrollX="true" style="height: 73px">
       <div style="white-space: nowrap; font-size: 10">
-        <button *ngFor="#i of [6,5,4,3,2,1,0]" (click)="openPage(i)">
+        <!-- <button *ngFor="#i of [6,5,4,3,2,1,0]" (click)="openPage(i)">
           {{ appConfig.weekDays[(today + i) % 7] }} {{ calculateDateFromToday(i-6, true) }}
-        </button>
+        </button> -->
+        <button *ngFor="#newsletter of nls.data" (click)="openPage(newsletter.id)">{{ newsletter.id }}</button>
       </div>
     </ion-scroll>
-
-  <ion-item>
-    <h1 class="title">{{ data._id }} {{ data.perexTitle }}</h1>
+  <a (click)="removeTimeStamp('lastNlUpdateCheck')">Remove lastNlUpdateCheck item.</a>
+  <ion-item *ngIf="data">
+    <h1 class="title">{{ data.perexTitle }}</h1>
     <h2> {{ data.date }}</h2>
     <h3><a nav-transition="android" (click)="magazinePage()">Transition test</a></h3>
     <p>{{ data.perex }}</p>
   </ion-item>
 
   <ion-card *ngFor="#campaign of data.newCampaigns">
-    <img [src]="campaign.campaign.images.homepage-main || sampleImg">
+    <img [src]="campaign.campaign.images['homepage-main'] || sampleImg">
     <ion-item>
       <h1>{{ campaign.campaign.name }}</h1>
       <p>{{ campaign.campaign.perex }}</p>
-      <p>{{ campaign.campaign.type }}</p>
+      <p>{{ campaign.type }}</p>
     </ion-item>
 
     <ion-row *ngIf="campaign.campaign.type == 'big-product-single'">
@@ -53,54 +54,58 @@
     </ion-row>
   </ion-card>
 
-  <ion-card>
+  <ion-card *ngIf="data.onStockProducts">
     <h1>Skladovky</h1>
-    <ion-row>
-      <div *ngFor="#stockItem of data.onStockProducts.products">
-        <img [src]="stockItem.images[0].productDetail-thumbnail || sampleImg"><br>
-        <p>{{stockItem.name}}, {{ stockItem.price }} {{ stockItem.currency }}</p>
-      </div>
-    </ion-row>
-    <ion-row>Na techto {{ data.onStockProducts.pcsLeft}} kousku cekat nemusite!</ion-row>
+        <ion-scroll scrollX="true" style="height: 160px">
+          <div style="white-space: nowrap">
+            <div *ngFor="#stockItem of data.onStockProducts.products" style="display: inline-block">
+              <img [src]="stockItem.images[0]['productDetail-thumbnail'] || sampleImg" style="width: auto;"><br>
+              <p>{{stockItem.name}}, {{ stockItem.price }} {{ stockItem.currency }}</p>
+            </div>
+          </div>
+        </ion-scroll>
+    <ion-row>Na tyto kousky cekat nemusite!</ion-row>
   </ion-card>
 
-  <ion-card>
-    <img [src]="data.magazineArticle.articleImg || sampleImg">
+  <ion-card *ngIf="data.magazineArticle">
+    <img [src]="data.magazineArticle.image || sampleImg">
     <h1>Magazin</h1>
     <ion-item>{{ data.magazineArticle.title }}</ion-item>
   </ion-card>
 
-  <ion-card>
+  <ion-card *ngIf="data.lovedProduct">
     <h1>Srdcovka</h1>
-    <ion-row *ngFor="#lovedItem of data.lovedProducts.products">
-      <ion-col width-33><img [src]="lovedItem.images[0].productDetail-thumbnail || sampleImg"></ion-col>
+    <ion-row>
+      <ion-col width-33><img [src]="data.lovedProduct.images[0]['productDetail-thumbnail'] || sampleImg"></ion-col>
       <ion-col>
         <ion-row>
-          <ion-col><p>{{ lovedItem.name }}</p></ion-col>
+          <ion-col><p>{{ data.lovedProduct.name }}</p></ion-col>
         </ion-row>
         <ion-row>
-          <ion-col>{{ lovedItem.price }} {{ lovedItem.currency }}</ion-col>
+          <ion-col>{{ data.lovedProduct.priceInfo.price }} {{ data.lovedProduct.priceInfo.currency }}</ion-col>
           <ion-col width-10><ion-icon name="arrow-forward"></ion-icon></ion-col>
         </ion-row>
       </ion-col>
     </ion-row>
   </ion-card>
 
-  <ion-card *ngFor="#product of data.endingCampaigns.products">
-    <img [src]="product.images[0].homepage-main || sampleImg">
-    <ion-item style="background: rgb(228, 14, 65); color: white">
-      <h1>{{ product.name }}</h1>
-      <p>{{ product.description }}</p>
-      <ion-icon name="time" isActive="false">
-         Konci za {{ calculateTimeRemaining(product.campaignEndAt).days }} dni
-        {{ calculateTimeRemaining(product.campaignEndAt).hours }} hodin.
-      </ion-icon><div>
-      </div>
-    </ion-item>
-  </ion-card>
+  <div *ngIf="data.endingCampaigns">
+    <ion-card *ngFor="#campaign of data.endingCampaigns">
+      <img [src]="campaign.images['homepage-main'] || sampleImg">
+      <ion-item style="background: rgb(228, 14, 65); color: white">
+        <h1>{{ campaign.name }}</h1>
+        <p>{{ campaign.description }}</p>
+        <ion-icon name="time" isActive="false">
+          Konci za {{ calculateTimeRemaining(campaign.endAt).days }} dni
+          {{ calculateTimeRemaining(campaign.endAt).hours }} hodin.
+        </ion-icon><div>
+        </div>
+      </ion-item>
+    </ion-card>
+  </div>
 
   <!-- <p>
     <button primary menuToggle>Toggle Menu</button>
-  </p> -->
+  </p>  -->
 
 </ion-content>

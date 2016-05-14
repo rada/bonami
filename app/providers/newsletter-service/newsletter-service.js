@@ -22,23 +22,47 @@ export class NewsletterService {
   // Local Storage and adds them to this.data (this.getNewNewsletters)
   getNewsletters(checkNew){
     if (this.data.length == 0){
-      return this.getAllLocalNewsletters().then((data) => {
-        let localNewslettersIds = this.data.map((nl) => { return nl.id });
+      return new Promise(resolve => {
+        this.getAllLocalNewsletters().then((data) => {
+          this.data = this.data.sort(this.compareDates);
+          let localNewslettersIds = this.data.map((nl) => { return nl.id });
 
-        if(checkNew || this.checkNewNewsletters()){
-          this.getNewNewsletters(localNewslettersIds, true).then((resp) => {
-            console.log("observable", resp);
-          });
-        }
-      }).catch((err) => { console.log(err); });
+          if(checkNew || this.checkNewNewsletters()){
+            this.getNewNewsletters(localNewslettersIds, true).then((resp) => {
+              console.log("observable", resp);
+              resolve(resp);
+            });
+          }else{
+            resolve(this.data[0]);
+          }
+        }).catch((err) => { console.log(err); });
+      })
     }
+  }
+
+  // Gets all newsletters from Local Storage and adds them to this.data
+  getAllLocalNewsletters(){
+    return new Promise(resolve => {
+      this.ls.getAllRecords(this.appConfig.dbs['newsletterDbName']).then((data) =>{
+        this.data = data.rows.map((row) => {
+          let nlDate = new Date(row.doc.publishedAt)
+          row.doc.date = nlDate.toLocaleDateString();
+          return row = row.doc
+        })
+        resolve(this.data);
+      }).catch((err) => {
+        console.error("Error fetching newsletters from local DB: ", err);
+      })
+    })
   }
 
   // Checking if timelimit fro appConfig for checking new
   // newsletters is reached
   checkNewNewsletters(){
-    let lastBonamiUpdate = new Date(localStorage.getItem("lastUpdateCheck"));
+    let lastBonamiUpdate = new Date(localStorage.getItem("lastNlUpdateCheck"));
     console.log("Last Bonami new newsletters check at: ", lastBonamiUpdate);
+    console.log("(new Date() - lastBonamiUpdate) >= this.appConfig.remoteNlIntervalCheck",
+      (new Date() - lastBonamiUpdate) >= this.appConfig.remoteNlIntervalCheck);
     return (new Date() - lastBonamiUpdate) >= this.appConfig.remoteNlIntervalCheck;
   }
 
@@ -47,27 +71,30 @@ export class NewsletterService {
   // and also adds to this.data (this.saveNewsletter)
   getNewNewsletters(newsletterIds, save){
     return new Promise(resolve => {
-      let newNewsletters = [];
       this.bonami.getNewslettersList().map((resp)=> resp.json()).subscribe((resp) => {
-        console.log("Newsletter list fetched.");
+        console.log("Newsletter list fetched.", resp);
         let remoteNewslIds = resp.map((nl) => { return nl.id });
         remoteNewslIds.forEach((remoteNewslId) => {
           let isNew = remoteNewslId != newsletterIds.find((localNewsletterId) => {
             return localNewsletterId == remoteNewslId;
           })
-          if (isNew){
+          if(isNew){
             this.getNewsletter(remoteNewslId).then(resp => {
               if (save){ this.saveNewsletter(resp) };
               // this.data.push(resp);
+              resolve(resp);
             })
           }
         });
-        localStorage.setItem("lastUpdateCheck", Date());
-        resolve(this.data);
+        localStorage.setItem("lastNlUpdateCheck", Date());
       }, (err) => {
         console.error("Unable to fetch Bonami newsletter list: ", err);
       })
     })
+  }
+
+  getLocalNlIds(){
+    return this.data.map(newsletter => { return newsletter.id });
   }
 
   // Fetched newsletter from Bonami API
@@ -76,7 +103,7 @@ export class NewsletterService {
       this.bonami.getNewsletter(id).map((res)=> res.json()).subscribe(
         resp => {
           console.log("New newsletter fetched: ", resp);
-          resp.id += Math.ceil(Math.random()*30); // Unique ID is neede to save to PouchDB workaround befor API is available.
+          // resp.id += Math.ceil(Math.random()*30); // Unique ID is neede to save to PouchDB workaround befor API is available.
           resolve(resp);
         },
         err => {console.error("Bonami Service error: ", err);}
@@ -122,19 +149,6 @@ export class NewsletterService {
     })
   }
 
-  // Gets all newsletters from Local Storage and adds them to this.data
-  getAllLocalNewsletters(){
-    return this.ls.getAllRecords(this.appConfig.dbs['newsletterDbName']).then((data) =>{
-        this.data = data.rows.map((row) => {
-          let nlDate = new Date(row.doc.publishedAt)
-          row.doc.date = nlDate.toLocaleDateString();
-          return row = row.doc
-        })
-    }).catch((err) => {
-      console.error("Error fetching newsletters from local DB: ", err);
-    })
-  }
-
   // removeExpiredNewsletters(newsletters){
   //   if(newsletters & newsletters instanceof Array){
   //     let expiredNewsletters = [];
@@ -144,6 +158,15 @@ export class NewsletterService {
   //     })
   //   }
   // }
+
+  compareDates(date1, date2){
+  	let d1 = new Date(date1);
+  	let d2 = new Date(date2);
+
+  	if (d1 < d2){ return 1; }
+  	if (d1 > d2){ return -1; }
+  	return 0
+  }
 
   // Not yet implemented
   updateNewsletters(){

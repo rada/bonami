@@ -30,34 +30,67 @@ export class NewsletterPage {
     this.appConfig = appConfig.appConfig;
     this.today = (new Date()).getDay();
     this.sampleImg = "https://1.bonami.cz/images/campaigns/newsletter_new/campaign-297-darkove-poukazy.jpeg?v=iaa4h"
-    if (this.nls.data.length == 0){ // newsletters haven't been fethced from NewsletterService yet
+    if (this.nls.data.length == 0){ // newsletters haven't been fetched from NewsletterService yet
+      console.log("this.nls.data.length == 0");
       this.initData();
-      this.nls.getNewsletters().then((data) =>{
-        console.log("this.nls: ", this.nls);
-        this.data = this.nls.data[0];
-      });
+      this.getNewsletters();
     }else if(this.nls.checkNewNewsletters()){
+      this.initData(this.nls.data[0]);
       console.log("Checking new newsletters at Bonami.");
-      this.data = this.nls.data[0];
-      let localNlIds = this.nls.data.map((nl) => { return nl.id });
-      this.nls.getNewNewsletters(localNlIds, true);
+      this.getApiNewsletters();
     }else{
-      this.data = this.nls.data[0];
+      this.initData(this.nls.data[0]);
       console.log("Data already available in this.nls:", this.nls);
     }
+    this.data.end = [{name: {test: "test"}}];
   }
 
   // Creates empty objects fro newsletters in order not to get errors
   // from html template as this.data.BELOW_OBJECTS is used in *ngFor cycle
-  initData(){
-    this.data = {
-      onStockProducts: {},
-      magazineArticle: {},
-      lovedProducts: {},
-      endingCampaigns: {}
-    };
+  initData(data){
+    if(data){
+      this.data = data
+    }else{
+      this.data = {
+        onStockProducts: {},
+        magazineArticle: {},
+        lovedProducts: {},
+        endingCampaigns: [{images: {}}],
+        newCampaigns: [{campaign: {images: {}}, products: [{}]}]
+      };
+    }
   }
 
+  getNewsletters(){
+    this.nls.getAllLocalNewsletters().then(data => {
+      console.log("getAllLocalNewsletters()", data);
+      if(data[0]){ this.initData(data[0]); }
+      // this.data.end = [{name: "test"}];
+      this.getApiNewsletters();
+    });
+  }
+
+  getApiNewsletters(){
+    // if(this.nls.checkNewNewsletters()){
+      this.nls.getNewNewsletters(this.nls.getLocalNlIds(), true).then(data => {
+        console.log("getNewNewsletters", data);
+        if(data){ this.data = data; }
+      })
+    // }
+  }
+
+  log(object){
+    console.log("log: ", object);
+  }
+
+  removeTimeStamp(itemName){
+    localStorage.removeItem(itemName);
+  }
+  dataAvailable(name){
+    if(this.data.hasOwnProperty(name)){
+      return !(Object.keys(this.data.name).length === 0 && this.data.name.constructor === Object)
+    }
+  }
   // for testing purposes only
   onPageLoaded(){
     console.log("Before platfor.ready().");
@@ -75,10 +108,8 @@ export class NewsletterPage {
   // for testing purposes only
   openPage(event, item){
     console.log(event, item);
-    if (this.nls.data.length > event){
-      this.data = this.nls.data[event];
-      // this.nls.deleteLocalNewsletter(this.nls.data[event]);
-    }
+    // this.data = this.nls.data[event];
+    this.nls.deleteLocalNewsletter(this.nls.data.find((nl)=>{return nl.id == event}));
     // this.nav.push(NewsletterPage);
   }
 
