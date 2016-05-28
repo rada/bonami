@@ -1,4 +1,5 @@
 import {Page, NavController} from 'ionic-angular';
+import {AppConfig} from '../../config/config.js'
 
 /*
   Generated class for the SettingsPage page.
@@ -11,10 +12,11 @@ import {Page, NavController} from 'ionic-angular';
 })
 export class SettingsPage {
   static get parameters() {
-    return [[NavController]];
+    return [[NavController], [AppConfig]];
   }
 
-  constructor(nav) {
+  constructor(nav, appConfig) {
     this.nav = nav;
+    this.appConfig = appConfig.appConfig;
   }
 }

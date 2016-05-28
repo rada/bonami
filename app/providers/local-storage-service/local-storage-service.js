@@ -66,6 +66,14 @@ export class LocalStorageService {
     }
   };
 
+  isArticleOffline(id){
+    let offlineArticleIds = JSON.parse(localStorage.getItem('offlineArticles'));
+    if(offlineArticleIds){
+      return offlineArticleIds.indexOf(id) > -1;
+    }
+    return false;
+  }
+
   deleteAllRecords(db){
     return db.destroy();
   };

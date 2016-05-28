@@ -1,5 +1,5 @@
 import {Injectable} from 'angular2/core';
-import {Http} from 'angular2/http';
+import {Http, Headers, RequestOptions, Request} from 'angular2/http';
 import 'rxjs/add/operator/map';
 import {AppConfig} from '../../config/config.js'
 /*
@@ -17,27 +17,33 @@ export class BonamiService {
   constructor(http, appConfig) {
     this.http = http;
     this.data = null;
-    this.config = appConfig
+    this.config = appConfig;
   }
 
   //http call to Bonami for list of available Newsletters
   // return empty list when the connection is unavailable
+  getHeaders(){
+    let reqHeaders = new Headers({ 'Accept-Language': this.config.appConfig.lang });
+    return new RequestOptions({ headers: reqHeaders });
+  }
   getNewslettersList(){
-    return this.http.get(this.config.getApiUrl('newsletters'));
+    return this.http.get(this.config.getApiUrl('newsletters'), this.getHeaders());
   }
 
   getNewsletter(id){
     let url = this.config.getApiUrl('newsletterById').replace(":id", id);
-    return this.http.get(url);
+    return this.http.get(url, this.getHeaders());
   }
 
   getMagazineArticleList(){
-    return this.http.get(this.config.getApiUrl('magazines'));
+    // let reqHeaders = new Headers({ 'Accept-Language': 'sk'});
+    // let options = new RequestOptions({ headers: reqHeaders });
+    return this.http.get(this.config.getApiUrl('magazines'), this.getHeaders());
   }
 
   getMagazineArticle(id){
-    let url = this.config.getLiveApiUrl('magazineArticleById').replace(":id", id);
-    return this.http.get(url);
+    let url = this.config.getApiUrl('magazineArticleById').replace(":id", id);
+    return this.http.get(url, this.getHeaders());
   }
 
   load() {

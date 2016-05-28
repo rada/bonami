@@ -40,6 +40,14 @@ export class NewsletterService {
     }
   }
 
+  compareDates(newsletter1, newsletter2){
+    let date1 = new Date(newsletter1.publishedAt);
+  	let date2 = new Date(newsletter2.publishedAt);
+
+    if(date1 < date2){ return 1 };
+  	if(date1 > date2){ return -1 };
+  	return 0;
+  }
   // Gets all newsletters from Local Storage and adds them to this.data
   getAllLocalNewsletters(){
     return new Promise(resolve => {
@@ -49,6 +57,8 @@ export class NewsletterService {
           row.doc.date = nlDate.toLocaleDateString();
           return row = row.doc
         })
+        this.data = this.removeExpiredNewsletters(this.data);
+        this.data.sort(this.compareDates);
         resolve(this.data);
       }).catch((err) => {
         console.error("Error fetching newsletters from local DB: ", err);
@@ -73,13 +83,14 @@ export class NewsletterService {
     return new Promise(resolve => {
       this.bonami.getNewslettersList().map((resp)=> resp.json()).subscribe((resp) => {
         console.log("Newsletter list fetched.", resp);
-        let remoteNewslIds = resp.map((nl) => { return nl.id });
-        remoteNewslIds.forEach((remoteNewslId) => {
-          let isNew = remoteNewslId != newsletterIds.find((localNewsletterId) => {
-            return localNewsletterId == remoteNewslId;
+        // resp.push({"id":2,"domain":"cz","perexTitle":"","publishedAt":"2016-05-25T05:00:00+02:00"});
+        resp.sort(this.compareDates);
+        resp.forEach(remoteNewsl => {
+          let isNew = remoteNewsl.id != newsletterIds.find((localNewsletterId) => {
+            return localNewsletterId == remoteNewsl.id;
           })
-          if(isNew){
-            this.getNewsletter(remoteNewslId).then(resp => {
+          if(isNew && !this.isNlExpired(remoteNewsl)){
+            this.getNewsletter(remoteNewsl.id).then(resp => {
               if (save){ this.saveNewsletter(resp) };
               // this.data.push(resp);
               resolve(resp);
@@ -131,7 +142,7 @@ export class NewsletterService {
       return this.ls.saveRecord(this.appConfig.dbs['newsletterDbName'], newsletter).then((resp) => {
         console.log("Newsletter saved.", resp);
         newsletter._rev = resp.rev;
-        this.data.push(newsletter);
+        this.data.unshift(newsletter);
       }).catch((err) => {
         console.error("Unable to save newsletter: ", newsletter.id, err);
       });
@@ -142,30 +153,48 @@ export class NewsletterService {
   deleteLocalNewsletter(newsletter){
     this.ls.deleteRecord(this.appConfig.dbs['newsletterDbName'], newsletter).then((resp) => {
       console.log("Newsletter deleted. ", resp);
-      let index = this.data.indexOf(newsletter);
-      if (index > -1){ this.data.splice(index, 1); }
+      // let index = this.data.indexOf(newsletter);
+      // if (index > -1){ this.data.splice(index, 1); }
     }).catch((err) => {
       console.error("Unable to delete newsletter: ", err);
     })
   }
 
-  // removeExpiredNewsletters(newsletters){
-  //   if(newsletters & newsletters instanceof Array){
-  //     let expiredNewsletters = [];
-  //     let validNewsletters = []
-  //     newsletters.forEach((newsletter) => {
-  //       let expireDate = new Date(newsletter. endAt)
-  //     })
-  //   }
-  // }
 
-  compareDates(date1, date2){
-  	let d1 = new Date(date1);
-  	let d2 = new Date(date2);
+  isNlExpired(newsletter){
+    let today = new Date();
+    let nwslPublished = new Date(newsletter.publishedAt);
+    return today.valueOf() - nwslPublished.valueOf() >= this.appConfig.nwslRententionPeriod;
+  }
 
-  	if (d1 < d2){ return 1; }
-  	if (d1 > d2){ return -1; }
-  	return 0
+  removeExpiredNewsletters(newsletters){
+
+    if(newsletters && newsletters instanceof Array){
+      let expiredNewsletters = [];
+      let validNewsletters = newsletters.filter((newsletter) => {
+        // let isNlExpired = today.valueOf() - nwslPublished.valueOf() >= this.appConfig.nwslRententionPeriod;
+        if(this.isNlExpired(newsletter)){ expiredNewsletters.push(newsletter); }
+        return !this.isNlExpired(newsletter);
+      })
+      console.log("Removing expired: ", expiredNewsletters.map(nl=>{ return nl = nl.id; }));
+      console.log("valid: ", validNewsletters.map(nl=>{ return nl=nl.id; }));
+      expiredNewsletters.forEach(newsletter => { this.deleteLocalNewsletter(newsletter); })
+      return validNewsletters;
+    }
+  }
+
+  // for testing purposes only. Used to generate button headings in html template
+  calculateDateFromToday(numOfDays, dayMonthFormat = false){
+    let today = new Date;
+    let dayInMiliSecs = 1000 * 3600 * 24;
+    if (Number(numOfDays) || numOfDays == 0){
+      let date = new Date(today.valueOf() + (dayInMiliSecs * Number(numOfDays)));
+      if (dayMonthFormat) {
+        return (date.getDate()) + "." + (date.getMonth()) + "."
+      }
+      return date;
+    }
+    return 0;
   }
 
   // Not yet implemented

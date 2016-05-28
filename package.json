@@ -20,8 +20,8 @@
     "ionic-gulp-scripts-copy": "^1.0.1",
     "run-sequence": "1.1.5"
   },
-  "name": "ionic2sidemenu",
-  "description": "Ionic2SideMenu: An Ionic project",
+  "name": "Bonami Newsletters",
+  "description": "Bonami app for Newsletters and Magazine",
   "cordovaPlugins": [
     "cordova-plugin-device",
     "cordova-plugin-console",
@@ -29,7 +29,8 @@
     "cordova-plugin-splashscreen",
     "cordova-plugin-statusbar",
     "ionic-plugin-keyboard",
-    "cordova-plugin-sqlite-2"
+    "cordova-plugin-sqlite-2",
+    "cordova-plugin-inappbrowser"
   ],
   "cordovaPlatforms": []
 }

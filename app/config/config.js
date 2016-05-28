@@ -10,7 +10,7 @@ export class AppConfig{
       storagePrefix: "test_",
 
       // date config
-      weekDays: ['pondeli','utery','streda', 'ctvrtek', 'patek', 'sobota', 'nedele'],
+      weekDays: ['nedele', 'pondeli','utery','streda', 'ctvrtek', 'patek', 'sobota'],
       // API config
       apiUrlTest: "private-anon-e17b6324b-bonami1.apiary-mock.com",
       apiUrl: "www.bonami.cz/mcc16",
@@ -27,7 +27,13 @@ export class AppConfig{
         },
       // interval after which we check new newsletters
       // using Bonami API
-      remoteNlIntervalCheck: 3600000
+      remoteNlIntervalCheck: 3600000,
+      //expiration date for newsetters in ms. One day = (1000 * 3600 * 24)ms
+      nwslRententionPeriod: 6 * (1000 * 3600 * 24),
+      oneSignalAppId: "8baf272d-5a7f-4f97-8b72-75df81f0d15b",
+      googleProjectId: "1005880216694",
+      userConfig: localStorage.getItem("userConfig"),
+      lang: "cz"
     }
   }
 

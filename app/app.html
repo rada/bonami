@@ -1,7 +1,7 @@
 <ion-menu [content]="content">
 
   <ion-toolbar>
-    <ion-title>Bonami</ion-title>
+    <ion-title><img src="../img/bonami-logo.svg"></ion-title>
   </ion-toolbar>
 
   <ion-content>
@@ -10,7 +10,7 @@
         {{p.title}}
       </button>
       <ion-item-divider>System</ion-item-divider>
-      <ion-item>Settings</ion-item>
+      <button menuClose ion-item (click) = "openPage(settingsPage)">Settings</button>
     </ion-list>
   </ion-content>
 
