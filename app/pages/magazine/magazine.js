@@ -80,7 +80,8 @@ export class MagazinePage {
     this.ms.getNewArticles([], false).then(data => {
       // console.log("getNewArticles", data);
       if(data){
-        this.initData(data.reverse());
+        let filtered = data.filter(article => { return Number(article.id) != 1574 && Number(article.id) !=  1570 })
+        this.initData(filtered.reverse());
       }else{
         console.error("No data fetched from Magazine API.", data);
       }
